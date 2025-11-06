@@ -1,0 +1,130 @@
+@import "tailwindcss";
+
+/* Cursor-Style Dark Theme Colors for Tailwind v4 */
+@theme {
+  /* Background Colors - Dark theme */
+  --color-bg-primary: #0a0a0a;
+  --color-bg-secondary: #1a1a1a;
+  --color-bg-tertiary: #252525;
+  --color-bg-brand: #333333;
+  --color-bg-brand-hover: #404040;
+
+  /* Text Colors - Light on dark */
+  --color-text-primary: #e4e4e7;
+  --color-text-secondary: #a1a1aa;
+  --color-text-tertiary: #71717a;
+  --color-text-inverse: #0f172a;
+
+  /* Border Colors - Subtle dark borders */
+  --color-border-default: #27272a;
+  --color-border-focus: #52525b;
+
+  /* Status Colors - Muted but visible */
+  --color-status-success: #22c55e;
+  --color-status-success-hover: #16a34a;
+  --color-status-error: #ef4444;
+  --color-status-error-hover: #dc2626;
+  --color-status-warning: #f59e0b;
+  --color-status-warning-hover: #d97706;
+  --color-status-info: #6b7280;
+  --color-status-info-hover: #52525b;
+
+  /* Brand accent colors for special use cases */
+  --color-brand-50: #27272a;
+  --color-brand-100: #333333;
+  --color-brand-200: #404040;
+  --color-brand-300: #52525b;
+  --color-brand-400: #71717a;
+  --color-brand-500: #a1a1aa;
+  --color-brand-600: #d4d4d8;
+  --color-brand-700: #e4e4e7;
+  --color-brand-800: #f4f4f5;
+  --color-brand-900: #fafafa;
+}
+
+/* Ensure body fills viewport so Tailwind bg utilities are visible */
+html, body, #root {
+  height: 100%;
+}
+
+/* React Toastify Dark Theme Customization */
+.Toastify__toast-theme--dark {
+  background-color: #1a1a1a !important;
+  border: 1px solid #27272a !important;
+  color: #e4e4e7 !important;
+}
+
+.Toastify__toast-theme--dark.Toastify__toast--success {
+  background-color: #1a1a1a !important;
+  border-left: 4px solid #22c55e !important;
+}
+
+.Toastify__toast-theme--dark.Toastify__toast--error {
+  background-color: #1a1a1a !important;
+  border-left: 4px solid #ef4444 !important;
+}
+
+.Toastify__toast-theme--dark.Toastify__toast--warning {
+  background-color: #1a1a1a !important;
+  border-left: 4px solid #f59e0b !important;
+}
+
+.Toastify__toast-theme--dark.Toastify__toast--info {
+  background-color: #1a1a1a !important;
+  border-left: 4px solid #6b7280 !important;
+}
+
+.Toastify__progress-bar-theme--dark {
+  background: linear-gradient(to right, #52525b, #a1a1aa) !important;
+}
+
+/* React DatePicker Dark Theme */
+.react-datepicker {
+  background-color: #1a1a1a !important;
+  border: 1px solid #27272a !important;
+  font-family: inherit !important;
+}
+
+.react-datepicker__header {
+  background-color: #252525 !important;
+  border-bottom: 1px solid #27272a !important;
+}
+
+.react-datepicker__current-month,
+.react-datepicker__day-name {
+  color: #e4e4e7 !important;
+}
+
+.react-datepicker__day {
+  color: #a1a1aa !important;
+}
+
+.react-datepicker__day:hover {
+  background-color: #333333 !important;
+  color: #e4e4e7 !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: #22c55e !important;
+  color: #0a0a0a !important;
+}
+
+.react-datepicker__day--in-range {
+  background-color: rgba(34, 197, 94, 0.2) !important;
+  color: #e4e4e7 !important;
+}
+
+.react-datepicker__day--disabled {
+  color: #52525b !important;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: #a1a1aa !important;
+}
+
+.react-datepicker__navigation:hover *::before {
+  border-color: #e4e4e7 !important;
+}
+
+
