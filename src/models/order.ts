@@ -13,6 +13,7 @@ export type OrderWithDetails = {
     numberRecurrence: number;
     paymentDate: string;
     updatedDate: string;
+    stockReleased: boolean;
     customerName: string;
     customerEmail: string;
     customerPhone: string;

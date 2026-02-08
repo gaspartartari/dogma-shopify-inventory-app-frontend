@@ -1,15 +1,14 @@
-import { useState, useContext, useEffect, useCallback } from 'react'
+import { useState, useContext, useEffect, useCallback, useMemo } from 'react'
 import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community'
 import { ContextToken } from '../utils/context-token'
 import * as authService from '../services/auth-service'
 import { useNavigate } from 'react-router-dom'
 import { getAllOrders } from '../services/order-service'
 import { getRevenueOverTime } from '../services/revenue-service'
-import { getAllSkuSummaries } from '../services/sku-service'
 import type { OrderWithDetails, RevenueDataPoint } from '../models/order'
-import type { SkuSummary } from '../models/sku'
 import { toast } from 'react-toastify'
 import { useQuery } from '@tanstack/react-query'
+import { getOrdersWithReservedStock } from '../utils/inventory-status'
 import DashboardHeader from '../components/dashboard/DashboardHeader'
 import StatsCards from '../components/dashboard/StatsCards'
 import RevenueGraphSection from '../components/dashboard/RevenueGraphSection'
@@ -21,8 +20,6 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 function Dashboard() {
   const navigate = useNavigate();
   const { contextTokenPayload, setContextTokenPayload } = useContext(ContextToken);
-  const [filteredOrders, setFilteredOrders] = useState<OrderWithDetails[]>([]);
-  const [hasActiveSearch, setHasActiveSearch] = useState(false);
 
   // Date range state for revenue graph (default to last 90 days)
   const [startDate, setStartDate] = useState<Date>(() => {
@@ -52,17 +49,10 @@ function Dashboard() {
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
-  const { 
-    data: skuData = [], 
-    isLoading: isLoadingSku, 
-    refetch: refetchSku,
-    isError: isSkuError,
-    error: skuError
-  } = useQuery<SkuSummary[], Error>({
-    queryKey: ['skuSummaries'],
-    queryFn: getAllSkuSummaries,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
+  // Calculate reserved stock orders from all orders
+  const reservedStockOrders = useMemo(() => {
+    return getOrdersWithReservedStock(rowData);
+  }, [rowData]);
 
   // Error handling
   useEffect(() => {
@@ -72,12 +62,6 @@ function Dashboard() {
     }
   }, [isError, error]);
 
-  useEffect(() => {
-    if (isSkuError && skuError) {
-      console.error('Erro ao buscar SKUs:', skuError);
-      toast.error('Erro ao carregar SKUs');
-    }
-  }, [isSkuError, skuError]);
 
   // Handlers
   const handleLogout = () => {
@@ -87,16 +71,9 @@ function Dashboard() {
   }
 
   const handleFilteredDataChange = useCallback((filtered: OrderWithDetails[], searchText: string) => {
-    setFilteredOrders(filtered);
-    setHasActiveSearch(searchText.trim().length > 0);
+    // Callback for search functionality within OrdersGrid
+    // No need to store state since we're only showing reserved stock orders
   }, []);
-
-  // Initialize filtered orders when data loads
-  useEffect(() => {
-    if (rowData.length > 0 && filteredOrders.length === 0) {
-      setFilteredOrders(rowData);
-    }
-  }, [rowData, filteredOrders.length]);
 
   return (
     <div className="min-h-screen bg-bg-secondary">
@@ -107,9 +84,7 @@ function Dashboard() {
 
       <main className="p-6">
         <StatsCards
-          orders={rowData}
-          filteredOrders={filteredOrders}
-          hasActiveSearch={hasActiveSearch}
+          reservedStockOrders={reservedStockOrders}
         />
 
         <RevenueGraphSection
@@ -123,7 +98,7 @@ function Dashboard() {
         />
 
         <OrdersGrid
-          orders={rowData}
+          orders={reservedStockOrders}
           isLoading={isLoading}
           isError={isError}
           onRefresh={refetch}
@@ -131,10 +106,10 @@ function Dashboard() {
         />
 
         <SkuGrid
-          skus={skuData}
-          isLoading={isLoadingSku}
-          isError={isSkuError}
-          onRefresh={refetchSku}
+          reservedStockOrders={reservedStockOrders}
+          isLoading={isLoading}
+          isError={isError}
+          onRefresh={refetch}
         />
       </main>
     </div>

@@ -5,38 +5,29 @@ import StatsCard from './StatsCard'
 import type { OrderWithDetails } from '../../models/order'
 
 type StatsCardsProps = {
-  orders: OrderWithDetails[]
-  filteredOrders: OrderWithDetails[]
-  hasActiveSearch: boolean
+  reservedStockOrders: OrderWithDetails[]
 }
 
-export default function StatsCards({ orders, filteredOrders, hasActiveSearch }: StatsCardsProps) {
-  // Calculate total revenue from filtered orders
+export default function StatsCards({ reservedStockOrders }: StatsCardsProps) {
+  // Calculate total revenue from reserved stock orders
   const totalRevenue = useMemo(() => {
-    return filteredOrders.reduce((sum, order) => {
+    return reservedStockOrders.reduce((sum, order) => {
       const orderTotal = order.products?.reduce((orderSum, product) => {
         return orderSum + (product.totalPrice || 0);
       }, 0) || 0;
       return sum + orderTotal;
     }, 0);
-  }, [filteredOrders]);
+  }, [reservedStockOrders]);
 
-  // Calculate total units from filtered orders
+  // Calculate total units from reserved stock orders
   const totalUnits = useMemo(() => {
-    return filteredOrders.reduce((sum, order) => {
+    return reservedStockOrders.reduce((sum, order) => {
       const orderUnits = order.products?.reduce((unitSum, product) => {
         return unitSum + (product.quantity || 0);
       }, 0) || 0;
       return sum + orderUnits;
     }, 0);
-  }, [filteredOrders]);
-
-  // Calculate total units from all orders for secondary display
-  const allOrdersUnits = useMemo(() => {
-    return orders.reduce((sum, order) =>
-      sum + (order.products?.reduce((pSum, p) => pSum + p.quantity, 0) || 0), 0
-    );
-  }, [orders]);
+  }, [reservedStockOrders]);
 
   const formattedRevenue = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -46,26 +37,22 @@ export default function StatsCards({ orders, filteredOrders, hasActiveSearch }: 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
       <StatsCard
-        title={hasActiveSearch ? 'Pedidos Filtrados' : 'Total de Pedidos'}
-        value={filteredOrders.length}
-        secondaryValue={hasActiveSearch && orders.length !== filteredOrders.length ? `/ ${orders.length}` : undefined}
+        title="Total de Pedidos com Estoque Reservado"
+        value={reservedStockOrders.length}
         icon={faShoppingCart}
-        toolTip="Total de pedidos aguardando pagamento que possuem SKU controlado"
+        toolTip="Total de pedidos que possuem estoque reservado (últimas 2 recorrências não pagas)"
       />
       <StatsCard
-        title={hasActiveSearch ? 'Unidades Filtradas' : 'Total de Unidades'}
+        title="Total de Unidades Reservadas"
         value={totalUnits}
-        secondaryValue={hasActiveSearch ? `/ ${allOrdersUnits}` : undefined}
         icon={faCubes}
-        toolTip="Total de SKU controlado no estoque reservado"
-
+        toolTip="Total de unidades de SKUs controlados em estoque reservado"
       />
       <StatsCard
-        title={hasActiveSearch ? 'Receita Prevista Filtrada' : 'Receita Prevista'}
+        title="Valor Total Reservado"
         value={formattedRevenue}
         icon={faMoneyBillWave}
-        toolTip= "Receita total prevista dos SKUs controlados nos pedidos"
-
+        toolTip="Valor total dos pedidos com estoque reservado"
       />
     </div>
   )
