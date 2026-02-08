@@ -1,4 +1,5 @@
-import { useState, useContext, useEffect, useCallback, useMemo } from 'react'
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { useState, useContext, useEffect, useMemo } from 'react'
 import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community'
 import { ContextToken } from '../utils/context-token'
 import * as authService from '../services/auth-service'
@@ -70,10 +71,10 @@ function Dashboard() {
     navigate('/login');
   }
 
-  const handleFilteredDataChange = useCallback((filtered: OrderWithDetails[], searchText: string) => {
-    // Callback for search functionality within OrdersGrid
-    // No need to store state since we're only showing reserved stock orders
-  }, []);
+  // const handleFilteredDataChange = useCallback((filtered: OrderWithDetails[], searchText: string) => {
+  //   // Callback for search functionality within OrdersGrid
+  //   // No need to store state since we're only showing reserved stock orders
+  // }, []);
 
   return (
     <div className="min-h-screen bg-bg-secondary">
@@ -102,7 +103,7 @@ function Dashboard() {
           isLoading={isLoading}
           isError={isError}
           onRefresh={refetch}
-          onFilteredDataChange={handleFilteredDataChange}
+          onFilteredDataChange={()=> 0}
         />
 
         <SkuGrid
