@@ -144,6 +144,24 @@ export default function OrdersGrid({ orders, isLoading, isError, onRefresh, onFi
         field: 'subscriptionNextBillingDate',
         width: 180
       },
+      {
+        headerName: 'Data Prevista Pagamento',
+        field: 'paymentDate',
+        width: 200,
+        cellRenderer: (props: { data: GridRow }) => {
+          if ('isDetail' in props.data) return null;
+          const order = props.data as OrderWithDetails;
+          if (order.paymentDate) {
+            return <span className="text-status-success">{order.paymentDate}</span>;
+          }
+          // Show expected date from subscription if unpaid
+          return (
+            <span className="text-status-warning">
+              {order.subscriptionNextBillingDate ? `Pendente (${order.subscriptionNextBillingDate})` : 'Pendente'}
+            </span>
+          );
+        }
+      },
     ],
     [expandedRows, toggleRowExpansion]
   );
@@ -288,7 +306,7 @@ export default function OrdersGrid({ orders, isLoading, isError, onRefresh, onFi
     <div className="bg-bg-primary rounded-lg shadow-sm border border-border-default p-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
         <h2 className="text-lg font-semibold text-text-primary">
-          Pedidos Pendentes
+          Pedidos com Estoque Reservado
         </h2>
         
         {/* Search and Action Buttons */}

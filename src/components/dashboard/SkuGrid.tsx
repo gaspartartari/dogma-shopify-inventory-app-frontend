@@ -4,7 +4,7 @@ import type { ColDef } from 'ag-grid-community'
 import { themeQuartz } from 'ag-grid-community'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faSpinner, faSearch, faFileExport } from "@fortawesome/free-solid-svg-icons"
-import type { SkuSummary } from '../../models/sku'
+import type { OrderWithDetails } from '../../models/order'
 import { toast } from 'react-toastify'
 
 const myTheme = themeQuartz.withParams({
@@ -16,27 +16,68 @@ const myTheme = themeQuartz.withParams({
   headerBackgroundColor: '#1a1a1a',
 });
 
+type SkuSummary = {
+  sku: string;
+  skuName: string;
+  totalQuantity: number;
+  orderCount: number;
+  skuOrderRevenue: number;
+}
+
 type SkuGridProps = {
-  skus: SkuSummary[]
+  reservedStockOrders: OrderWithDetails[]
   isLoading: boolean
   isError: boolean
   onRefresh: () => void
 }
 
-export default function SkuGrid({ skus, isLoading, isError, onRefresh }: SkuGridProps) {
+export default function SkuGrid({ reservedStockOrders, isLoading, isError, onRefresh }: SkuGridProps) {
   const [searchText, setSearchText] = useState('');
   const gridRef = useRef<AgGridReact<SkuSummary>>(null);
 
+  // Calculate SKU summaries from reserved stock orders
+  const skuSummaries = useMemo(() => {
+    const skuMap = new Map<string, { name: string; quantity: number; revenue: number; orderIds: Set<number> }>();
+    
+    reservedStockOrders.forEach(order => {
+      order.products?.forEach(product => {
+        if (!product.sku) return;
+        
+        const existing = skuMap.get(product.sku) || { 
+          name: product.skuName || product.sku, 
+          quantity: 0, 
+          revenue: 0, 
+          orderIds: new Set<number>() 
+        };
+        existing.quantity += product.quantity || 0;
+        existing.revenue += product.totalPrice || 0;
+        existing.orderIds.add(order.orderId);
+        skuMap.set(product.sku, existing);
+      });
+    });
+    
+    return Array.from(skuMap.entries())
+      .map(([sku, data]) => ({
+        sku,
+        skuName: data.name,
+        totalQuantity: data.quantity,
+        orderCount: data.orderIds.size,
+        skuOrderRevenue: data.revenue
+      }))
+      .filter(sku => sku.totalQuantity > 0) // Only show SKUs with reserved stock
+      .sort((a, b) => b.totalQuantity - a.totalQuantity); // Sort by quantity descending
+  }, [reservedStockOrders]);
+
   // Filter SKU data based on search text
   const filteredData = useMemo(() => {
-    if (!searchText.trim()) return skus;
+    if (!searchText.trim()) return skuSummaries;
     
     const searchLower = searchText.toLowerCase();
-    return skus.filter(sku => 
+    return skuSummaries.filter(sku => 
       sku.sku.toLowerCase().includes(searchLower) ||
       sku.skuName?.toLowerCase().includes(searchLower)
     );
-  }, [skus, searchText]);
+  }, [skuSummaries, searchText]);
 
   const columnDefs = useMemo<ColDef<SkuSummary>[]>(
     () => [
